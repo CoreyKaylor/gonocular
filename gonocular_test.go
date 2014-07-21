@@ -1,11 +1,12 @@
 package gonocular
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestComposingViews(t *testing.T) {
@@ -15,7 +16,7 @@ func TestComposingViews(t *testing.T) {
 			Convey("With template parse errors", func() {
 				template := TemplateFiles("fortests/error.html").Template()
 				rw := httptest.NewRecorder()
-				template.RenderHtml(rw, nil)
+				template.RenderHTML(rw, nil)
 				Convey("Error page should include template source", func() {
 					body := rw.Body.String()
 					containsSource := strings.Contains(body, "{{ blah() }}")
@@ -32,7 +33,7 @@ func TestComposingViews(t *testing.T) {
 			Convey("Without template parse errors", func() {
 				template := TemplateFiles("fortests/noerror.html").Template()
 				rw := httptest.NewRecorder()
-				template.RenderHtml(rw, nil)
+				template.RenderHTML(rw, nil)
 				Convey("Page should render content", func() {
 					body := rw.Body.String()
 					containsSource := strings.Contains(body, "<h1>Hello World!</h1>")
@@ -60,7 +61,7 @@ func TestComposingViews(t *testing.T) {
 			Convey("Without template parse errors", func() {
 				template := TemplateFiles("fortests/noerror.html").Template()
 				rw := httptest.NewRecorder()
-				template.RenderHtml(rw, nil)
+				template.RenderHTML(rw, nil)
 				Convey("Page should render content", func() {
 					body := rw.Body.String()
 					containsSource := strings.Contains(body, "<h1>Hello World!</h1>")

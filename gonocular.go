@@ -11,36 +11,44 @@ import (
 	"strings"
 )
 
+//Renderer is the template rendering interface
 type Renderer interface {
-	RenderHtml(wr http.ResponseWriter, data interface{})
+	RenderHTML(wr http.ResponseWriter, data interface{})
 }
 
-var (
-	//dev mode by default
-	optimize = os.Getenv("OPTIMIZE") != "true" && os.Getenv("OPTIMIZE") != ""
-)
+var templateFactory = newDevRenderer
 
+//DevModeRenderer is responsible for rendering templates and when an error occurs
+//will output the error details
 type DevModeRenderer struct {
 	templateFiles []string
 }
 
+//ProductionRenderer is responsible for only rendering the template and will
+//panic in the occurrence of an error. This is equivalent to template.Must(...
 type ProductionRenderer struct {
 	template *template.Template
 }
 
+//TemplateBuilder is responsible for building the collection of template files.
 type TemplateBuilder struct {
 	templateFiles []string
 }
 
-func DevMode() bool {
-	optimize = false
-	return optimize
+//DevMode changes the template behavior to include error details.
+//This is the default behavior.
+func DevMode() {
+	templateFactory = newDevRenderer
 }
 
+//ProductionMode makes the template behavior panic only when there is
+//an error. This is equivalent to calling template.Must(...
 func ProductionMode() {
-	optimize = true
+	templateFactory = newProductionRenderer
 }
 
+//TemplateFiles is the list of file paths relative from the callers code
+//file.
 func TemplateFiles(filenames ...string) *TemplateBuilder {
 	templates := make([]string, 0, 10)
 	for _, file := range filenames {
@@ -58,24 +66,23 @@ func filePathRelativeFromCaller(skip int, file string) string {
 	return file
 }
 
-func (v *TemplateBuilder) WithLayout() *TemplateBuilder {
-	return v
-}
-
+//Template will return the Dev or Production Renderer implementation based on
+//current settings
 func (v *TemplateBuilder) Template() Renderer {
-	if optimize {
-		return newProductionRenderer(v)
-	} else {
-		return &DevModeRenderer{v.templateFiles}
-	}
+	return templateFactory(v)
 }
 
-func newProductionRenderer(tb *TemplateBuilder) *ProductionRenderer {
+func newDevRenderer(tb *TemplateBuilder) Renderer {
+	return &DevModeRenderer{tb.templateFiles}
+}
+
+func newProductionRenderer(tb *TemplateBuilder) Renderer {
 	t := template.Must(template.ParseFiles(tb.templateFiles...))
 	return &ProductionRenderer{t}
 }
 
-func (r *ProductionRenderer) RenderHtml(wr http.ResponseWriter, data interface{}) {
+//RenderHTML will render an html/template file and panic if there is an error
+func (r *ProductionRenderer) RenderHTML(wr http.ResponseWriter, data interface{}) {
 	renderTemplate(r.template, wr, data)
 }
 
@@ -84,18 +91,22 @@ func renderTemplate(t *template.Template, wr http.ResponseWriter, data interface
 	t.Execute(wr, data)
 }
 
+//ParseError is details the error template uses to render the error page
 type ParseError struct {
 	FileName     string
 	ErrorMessage string
 	LineNumber   int
 }
 
+//SourceLine is the detail about a single line in a template file used for
+//rendering the error page.
 type SourceLine struct {
 	Line     int
 	HasError bool
 	Text     string
 }
 
+//SourceLines will parse out the error details of a template error.
 func (p *ParseError) SourceLines() []*SourceLine {
 	lines := make([]*SourceLine, 0, 10)
 	file, err := os.Open(p.FileName)
@@ -114,7 +125,9 @@ func (p *ParseError) SourceLines() []*SourceLine {
 	return lines
 }
 
-func (r *DevModeRenderer) RenderHtml(wr http.ResponseWriter, data interface{}) {
+//RenderHTML will render an html/template or in the case of an error will display
+//an errorpage with the error details.
+func (r *DevModeRenderer) RenderHTML(wr http.ResponseWriter, data interface{}) {
 	t, err := template.ParseFiles(r.templateFiles...)
 	if err == nil {
 		renderTemplate(t, wr, data)

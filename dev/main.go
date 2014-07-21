@@ -13,7 +13,7 @@ var (
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	template.RenderHtml(w, nil)
+	template.RenderHTML(w, nil)
 }
 
 func main() {
