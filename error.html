@@ -3,20 +3,34 @@
 <head>
 <title>Template Error</title>
 <style type="text/css">
-		html, body {
+		body {
 			margin: 0;
 			padding: 0;
 			font-family: Helvetica, Arial, Sans;
-			background: #EEEEEE;
+			background: #FEFEFE;
+			margin: 20px;
+		}
+		a {
+			color: #65656B;
 		}
 		.block {
-			padding: 20px;
-			border-bottom: 1px solid #aaa;
+			padding: 15px;
+			border-top: 1px solid #FFF;
+			border-bottom: 1px solid #E6E6E6;
+		}
+		.container {
+			width: 800px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.errorLogo {
+			float: left;
 		}
 		#header h1 {
-			font-weight: normal;
 			font-size: 28px;
 			margin: 0;
+			word-break: break-all;
+			overflow: hidden;
 		}
 		#more {
 			color: #666;
@@ -24,10 +38,9 @@
 			border: none;
 		}
 		#header {
-			background: #fcd2da;
-		}
-		#header p {
-			color: #333;
+			color: #A94442;
+			font-weight: bold;
+			border-bottom: 1px solid #E2E2E2;
 		}
 		#source {
 			background: #f6f6f6;
@@ -36,33 +49,42 @@
 			font-weight: normal;
 			font-size: 18px;
 			margin: 0 0 10px 0;
+			padding-bottom: 10px;
+			border-bottom: 1px solid #E6E6E6;
 		}
 		#source .lineNumber {
 			float: left;
 			display: block;
-			width: 40px;
 			text-align: right;
-			margin-right: 10px;
+			margin-right: 5px;
 			font-size: 14px;
 			font-family: monospace;
-			background: #333;
+			background: #C9C9C9;
 			color: #fff;
+			padding: 3px;
 		}
 		#source .line {
 			clear: both;
 			color: #333;
 			margin-bottom: 1px;
 		}
+		#source .line:nth-child(odd) {
+			background-color: #ECECEC;
+		}
+		#source .line:nth-child(even) {
+			background-color: #F0F0F0;
+		}
 		#source pre {
 			font-size: 14px;
 			margin: 0;
 			overflow-x: hidden;
+			padding: 3px;
 		}
 		#source .error {
-			color: #c00 !important;
+			color: #C00 !important;
 		}
 		#source .error .lineNumber {
-			background: #c00;
+			background: #C00;
 		}
 		#source a {
 			text-decoration: none;
@@ -82,12 +104,23 @@
 			font-style: normal;
 			font-weight: bold;
 		}
+		.footer {
+			padding: 10px;
+			font-size: 12px;
+			color: #7A7A7A;
+		}
 </style>
 </head>
 <body>
+	<div class="container">
 		<div id="header" class="block">
 			<h1>
+				<div class="errorLogo">
+				<img src="public/gopher1.png" alt="Gopher behind grave."/>
+				</div>
+				<div class="errorMessage">
 				{{.ErrorMessage}}
+				</div>
 			</h1>
 		</div>
 		<div id="source" class="block">
@@ -103,5 +136,11 @@
 				</div>
 			{{end}}
 		</div>
+		<div>
+			<div class="footer">
+			Resources: <a href="https://code.google.com/p/go-wiki/w/list" target="_blank">wiki</a>, todo...
+			</div>
+		</div>
+	</div>
 </body>
 </html>
