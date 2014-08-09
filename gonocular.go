@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -62,8 +63,11 @@ func TemplateFiles(filenames ...string) *TemplateBuilder {
 func filePathRelativeFromCaller(skip int, file string) string {
 	_, filename, _, _ := runtime.Caller(skip)
 	dir := path.Dir(filename)
-	file = path.Join(dir, file)
-	return file
+	filePath := path.Join(dir, file)
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		filePath, err = filepath.Abs(file)
+	}
+	return filePath
 }
 
 //Template will return the Dev or Production Renderer implementation based on
